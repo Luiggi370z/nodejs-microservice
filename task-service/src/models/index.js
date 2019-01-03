@@ -1,5 +1,3 @@
-const Task = require('./task')
+export * from './task'
 
-module.exports = {
-    Task
-}
+// const Task = require('./task') module.exports = Object.assign({}, Task)
