@@ -18,6 +18,21 @@ class Repository {
     return result
   }
 
+  pendingTasks = async _ => {
+    let tasks = []
+
+    try {
+      tasks = await this.taskModel()
+        .find({ startTime: null })
+        .sort({ createdOn: -1 })
+        .exec()
+    } catch (e) {
+      throw new Error(e)
+    }
+
+    return tasks
+  }
+
   disconnect = () => {
     this.db.close()
   }
