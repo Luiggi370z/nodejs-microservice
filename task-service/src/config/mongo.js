@@ -11,6 +11,7 @@ const connect = (options, mediator) => {
     Mongoose.connect(
       getMongoURL(options),
       {
+        useNewUrlParser: true
         // db: options.dbParameters(), server: options.serverParameters(), replset:
         // options.replsetParameters(options.repl)
       },

@@ -20,7 +20,7 @@ mediator.on('di.ready', container => {
   repository
     .connect(container)
     .then(repo => {
-      console.log('Connected. Starting Server')
+      console.log('Connected. Starting Server 👍 ')
       container.register({ repo: asValue(repo) })
       return server.start(container)
     })

@@ -4,7 +4,6 @@ function initDI({ serverSettings, dbSettings, database, models }, mediator) {
   mediator.once('init', () => {
     mediator.on('db.ready', db => {
       const container = createContainer()
-      console.log('models', models)
 
       container.register({
         database: asValue(db),

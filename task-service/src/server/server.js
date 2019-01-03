@@ -18,6 +18,14 @@ const start = async container => {
 
   const app = express()
   app.use(morgan('dev'))
+
+  // Just for Postman
+  app.use(
+    bodyParser.urlencoded({
+      extended: false
+    })
+  )
+
   app.use(bodyParser.json())
   // app.use(cors())
   app.use(helmet())

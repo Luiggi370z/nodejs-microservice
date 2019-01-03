@@ -1,21 +1,21 @@
-'use strict'
 class Repository {
   constructor(container) {
     this.db = container.cradle.database
     this.taskModel = container.cradle.taskModel
-    console.log('this.taskModel', this.taskModel)
   }
 
   pushTask = async payload => {
-    const task = new this.taskModel({ createdOn: new Date(), payload })
+    const newTask = new this.taskModel({ createdOn: new Date(), payload })
 
-    task.save((err, newTask) => {
-      if (err) {
-        throw new Error(err)
-      }
+    let result = null
 
-      return newTask
-    })
+    try {
+      result = await newTask.save()
+    } catch (e) {
+      throw new Error('Error saving task', e)
+    }
+
+    return result
   }
 
   disconnect = () => {
