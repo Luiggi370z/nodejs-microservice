@@ -8,6 +8,9 @@ const getMongoURL = options => {
 
 const connect = (options, mediator) => {
   mediator.once('boot.ready', () => {
+    Mongoose.set('useCreateIndex', true)
+    Mongoose.set('useFindAndModify', false)
+
     Mongoose.connect(
       getMongoURL(options),
       {

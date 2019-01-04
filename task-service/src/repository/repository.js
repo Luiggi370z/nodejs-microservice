@@ -7,30 +7,54 @@ class Repository {
   pushTask = async payload => {
     const newTask = new this.taskModel({ createdOn: new Date(), payload })
 
-    let result = null
-
     try {
-      result = await newTask.save()
+      return await newTask.save()
     } catch (e) {
-      throw new Error('Error saving task', e)
+      throw e
     }
-
-    return result
   }
 
-  pendingTasks = async _ => {
-    let tasks = []
-
+  popTask = async () => {
     try {
-      tasks = await this.taskModel()
+      return await this.taskModel.findOneAndUpdate(
+        { startTime: null },
+        { $set: { startTime: new Date() } },
+        {
+          new: true,
+          sort: {
+            priority: -1,
+            createdOn: 1
+          }
+        }
+      )
+    } catch (e) {
+      throw e
+    }
+  }
+
+  pendingTasks = async () => {
+    try {
+      return await this.taskModel
         .find({ startTime: null })
-        .sort({ createdOn: -1 })
+        .sort({ createdOn: 1 })
         .exec()
     } catch (e) {
-      throw new Error(e)
+      throw e
     }
+  }
 
-    return tasks
+  completeTask = async id => {
+    try {
+      let completedTask = await this.taskModel.findByIdAndUpdate(id, {
+        $set: { endTime: new Date() }
+      })
+
+      if (!completedTask) throw new Error(`Task with id '${id}' not found`)
+
+      return completedTask
+    } catch (e) {
+      throw e
+    }
   }
 
   disconnect = () => {
@@ -40,7 +64,7 @@ class Repository {
 
 const connect = async container => {
   if (!container) {
-    throw new Error('container not supplied!')
+    throw new Error('Container not supplied!')
   }
 
   return new Repository(container)
