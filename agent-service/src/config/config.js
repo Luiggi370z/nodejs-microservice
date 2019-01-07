@@ -1,3 +1,5 @@
+import { allRoutingKeys } from './constants'
+
 const dbSettings = {
   db: process.env.DB || 'agents',
   // user: process.env.DB_USER || 'cristian', pass: process.env.DB_PASS ||
@@ -42,11 +44,23 @@ const serverSettings = {
   // ssl: require('./ssl')
 }
 
-const aqmpSettings = {
+const aqmpCommon = {
   url: process.env.RABBITMQ_URL,
-  queueName: process.env.RABBITMQ_QUEUE_NAME,
-  exchange: process.env.RABBITMQ_EXCHANGE,
   type: process.env.RABBITMQ_TYPE || 'topic'
+}
+
+const aqmpSettings = {
+  pub: {
+    ...aqmpCommon,
+    queueName: process.env.RABBITMQ_AGENT_QUEUE_NAME,
+    exchange: process.env.RABBITMQ_AGENT_EXCHANGE
+  },
+  sub: {
+    ...aqmpCommon,
+    queueName: process.env.RABBITMQ_TASK_QUEUE_NAME,
+    exchange: process.env.RABBITMQ_TASK_EXCHANGE,
+    routingKeys: Object.values(allRoutingKeys.task)
+  }
 }
 
 module.exports = Object.assign({}, { dbSettings, serverSettings, aqmpSettings })

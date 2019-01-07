@@ -16,14 +16,25 @@ class Repository {
   }
 
   pushAgent = async ({ agentId, skills }) => {
-    const availableAgent = new this.agentModel({
-      agentId,
-      skills,
-      createdAt: new Date()
-    })
-
     try {
-      return await availableAgent.save()
+      console.log('pushAgent method', agentId)
+      let existingAgent = await this.agentModel.findOneAndUpdate(
+        { agentId },
+        { $set: { assignedAt: null, createdAt: new Date() } },
+        { new: true }
+      )
+      console.log('pushAgent existingAgent', existingAgent)
+      if (existingAgent && existingAgent.agentId === agentId)
+        return existingAgent
+
+      let newAgent = new this.agentModel({
+        agentId,
+        skills,
+        createdAt: new Date()
+      })
+      const result = await newAgent.save()
+      console.log('pushAgent new Agent', result)
+      return result
     } catch (e) {
       throw e
     }
@@ -48,6 +59,19 @@ class Repository {
     }
   }
 
+  requeueAgent = async agentId => {
+    try {
+      console.log('agentId inside requeueAgent', agentId)
+      return await this.agentModel.findOneAndUpdate(
+        { agentId },
+        { $set: { assignedAt: null, createdAt: new Date() } },
+        { new: true }
+      )
+    } catch (e) {
+      throw e
+    }
+  }
+
   getAvailableAgents = async () => {
     try {
       return await this.agentModel
@@ -61,6 +85,14 @@ class Repository {
 
   disconnect = () => {
     this.db.close()
+  }
+
+  resetAgent = async agentId => {
+    return this.agentModel.findOneAndUpdate(
+      agentId,
+      { $set: { assignedAt: null, createdAt: new Date() } },
+      { new: true }
+    )
   }
 }
 

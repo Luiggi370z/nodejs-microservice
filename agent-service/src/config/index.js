@@ -2,7 +2,6 @@ import * as models from '../models'
 import * as services from '../services'
 const { dbSettings, serverSettings, aqmpSettings } = require('./config')
 const database = require('./mongo')
-
 const { initDI } = require('./di')
 
 const init = initDI.bind(null, {
@@ -11,8 +10,8 @@ const init = initDI.bind(null, {
   database,
   models,
   services: {
-    publisher: new services.Publisher(aqmpSettings),
-    subscriber: new services.Subscriber(aqmpSettings)
+    publisher: new services.Publisher(aqmpSettings.pub),
+    subscriber: new services.Subscriber(aqmpSettings.sub)
   }
 })
 

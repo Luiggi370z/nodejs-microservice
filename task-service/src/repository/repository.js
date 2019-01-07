@@ -43,11 +43,37 @@ class Repository {
     }
   }
 
+  upgradePriority = async id => {
+    try {
+      let existingTask = await this.taskModel.findByIdAndUpdate(
+        id,
+        {
+          $set: { startTime: null },
+          $inc: { priority: 1 }
+        },
+        {
+          new: true
+        }
+      )
+
+      if (!existingTask)
+        throw new Error(`Task with id '${id}' not found or already assigned!`)
+
+      return existingTask
+    } catch (e) {
+      throw e
+    }
+  }
+
   completeTask = async id => {
     try {
-      let completedTask = await this.taskModel.findByIdAndUpdate(id, {
-        $set: { endTime: new Date() }
-      })
+      let completedTask = await this.taskModel.findByIdAndUpdate(
+        id,
+        {
+          $set: { endTime: new Date() }
+        },
+        { new: true }
+      )
 
       if (!completedTask) throw new Error(`Task with id '${id}' not found`)
 

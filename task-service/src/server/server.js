@@ -1,9 +1,9 @@
+import { TaskController } from '../controllers'
 const express = require('express')
 const morgan = require('morgan')
 const helmet = require('helmet')
 const bodyParser = require('body-parser')
 const Boom = require('boom')
-const TaskController = require('../controllers/taskController')
 
 const start = async container => {
   const { port } = container.resolve('serverSettings')
@@ -39,7 +39,12 @@ const start = async container => {
     next()
   })
 
-  const api = TaskController.bind(null, { repo })
+  const services = {
+    publisher: container.resolve('publisherService'),
+    subscriber: container.resolve('subscriberService')
+  }
+
+  const api = TaskController.bind(null, { repo, services })
   api(app)
 
   const server = app.listen(port, () => server)

@@ -16,7 +16,7 @@ const AgentSchema = new mongoose.Schema({
   assignedAt: {
     type: Date,
     default: null,
-    index: { name: 'AssignedAgents', expires: '3m' }
+    index: { name: 'AssignedAgents', expires: '1m' }
   },
   skills: {
     type: Object,
