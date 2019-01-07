@@ -1,4 +1,5 @@
 import { allRoutingKeys } from '../config/constants'
+import colors from 'colors'
 const Boom = require('boom')
 const HttpStatus = require('http-status')
 
@@ -8,9 +9,9 @@ export const AgentController = ({ repo, services }, app) => {
 
     switch (message.fields.routingKey) {
       case allRoutingKeys.task.new:
-        console.log('➡️  OnNewTask Event received ', data)
-        console.log('Searching available agents 🔎 ...')
-
+        console.log(`\n➡️  ${colors.yellow('OnNewTask Event received')}`)
+        console.log('\t 💾  Data:\n', JSON.stringify(data, null, 2))
+        console.log('\t 🔎  Searching available agents...')
         repo
           .getAgentFor(data.skills)
           .then(agent => {
@@ -21,15 +22,16 @@ export const AgentController = ({ repo, services }, app) => {
                 })
 
                 return console.log(
-                  `Agent Service: No available agents for: ${Object.keys(
-                    data.skills
-                  )
+                  `\t 🙁  No available agents for: ${Object.keys(data.skills)
                     .map(key => `${key}: ${data.skills[key]}`)
                     .join(',')}`
                 )
               }
 
-              console.log('Agent found!', agent)
+              console.log(
+                colors.green('\t 🙂  Agent found!\n'),
+                JSON.stringify(agent, null, 2)
+              )
 
               publishAgentEvent(allRoutingKeys.agent.found, {
                 taskId: data.id,
@@ -43,25 +45,28 @@ export const AgentController = ({ repo, services }, app) => {
             console.log('Error on Get Agent for:', data)
             throw e
           })
-
         break
 
       case allRoutingKeys.task.found:
-        console.log('➡️  OnFoundTask Event received ', data)
-        console.log('Task found for agent!')
-        console.log('Agent will be removed from queue in 1 min')
-        // Not necessary to update agent since index will remove automatically after 1min
+        console.log(`\n➡️  ${colors.yellow('OnFoundTask Event received')}`)
+        console.log('\t 🙂  Task found for agent!')
+        console.log('\t ⏱  Agent will be removed from queue in 1 min')
+        // Not necessary to update agent since index will remove automatically after
+        // 1min
         break
 
       case allRoutingKeys.task.notFound:
-        console.log('➡️  OnNotFoundTask Event received ', data)
-        console.log('--- Move back agent to queue', data)
-
+        console.log(`\n➡️  ${colors.yellow('OnNotFoundTask Event received')}`)
+        console.log(
+          '\t 🔁  Move back agent to queue\n',
+          JSON.stringify(data, null, 2)
+        )
         repo
           .requeueAgent(data.agentId)
           .then(updatedAgent => {
-            console.log('requeueAgent.then updatedAgent', updatedAgent)
-            console.log(`Agent '${updatedAgent.agentId}' has been requeued.`)
+            console.log(
+              `\t ⏱  Agent '${updatedAgent.agentId}' has been requeued.`
+            )
           })
           .catch(err => {
             console.log(`Error on requeue agent ${data.agentId}`)
@@ -143,9 +148,7 @@ export const AgentController = ({ repo, services }, app) => {
         }
 
         try {
-          publishAgentEvent(allRoutingKeys.agent.found, {
-            taskId: task.id
-          })
+          publishAgentEvent(allRoutingKeys.agent.found, { taskId: task.id })
         } catch (e) {
           throw e
         }
@@ -169,7 +172,5 @@ export const AgentController = ({ repo, services }, app) => {
       setTimeout(async () => {
         await services.publisher.close()
       }, 500)
-    // await services.publisher.close()
-    // console.log('New Agent event published', isPublished)
   }
 }

@@ -1,4 +1,5 @@
 import { allRoutingKeys } from '../config/constants'
+import colors from 'colors'
 const Boom = require('boom')
 const HttpStatus = require('http-status')
 
@@ -8,8 +9,9 @@ export const TaskController = ({ repo, services }, app) => {
 
     switch (message.fields.routingKey) {
       case allRoutingKeys.agent.new:
-        console.log('➡️  OnNewAgent Event received ', data)
-        console.log('--- Searching available tasks 🔎 ...')
+        console.log(`\n➡️  ${colors.yellow('OnNewAgent Event received')}`)
+        console.log('\t 💾  Data: \n', JSON.stringify(data, null, 2))
+        console.log('\t 🔎  Searching available tasks...')
 
         repo
           .popTask(data.skills)
@@ -21,15 +23,18 @@ export const TaskController = ({ repo, services }, app) => {
                 })
 
                 return console.log(
-                  `Task Service: No available tasks for: ${Object.keys(
+                  `\t 🙁  No available tasks for skills -> ${Object.keys(
                     data.skills
                   )
                     .map(key => `${key}: ${data.skills[key]}`)
-                    .join(',')}`
+                    .join(', ')}`
                 )
               }
 
-              console.log('Task found!', task)
+              console.log(
+                colors.green('\t 🙂  Task found!\n'),
+                JSON.stringify(task, null, 2)
+              )
 
               publishTaskEvent(allRoutingKeys.task.found, {
                 agentId: data.agentId,
@@ -47,13 +52,18 @@ export const TaskController = ({ repo, services }, app) => {
         break
 
       case allRoutingKeys.agent.found:
-        console.log('Agent found for task !', data)
+        console.log(`\n➡️  ${colors.yellow('OnFoundAgent Event received')}`)
+        console.log('\t 💾  Data: \n', JSON.stringify(data, null, 2))
 
         // TODO: Optional: agentId could be store in processId to save correlation between task and agent
         repo
           .completeTask(data.taskId)
           .then(updatedTask => {
-            console.log(`Task '${data.taskId}' assigned to '${data.agentId}.'`)
+            console.log(
+              `\t ✔  ${colors.green('Task')} ${data.taskId} ${colors.green(
+                ' assigned to '
+              )} ${data.agentId}`
+            )
           })
           .catch(err => {
             throw new Error(`Error on complete Task ${data.taskId}`, err)
@@ -62,16 +72,17 @@ export const TaskController = ({ repo, services }, app) => {
         break
 
       case allRoutingKeys.agent.notFound:
+        console.log(`\n➡️  ${colors.yellow('OnNotFoundAgent Event received')}`)
+        console.log('\t 💾  Data: \n', JSON.stringify(data, null, 2))
         console.log(
-          'No available agent for task, promoting the priority of the task',
-          data
+          '\t 🤷‍♂️  No available agent for task, promoting the priority of the task'
         )
 
         repo
           .upgradePriority(data.taskId)
           .then(updatedTask => {
             console.log(
-              `Task '${updatedTask._id}' has been promoted to priority: ${
+              `\t ⬆  Task '${updatedTask._id}' has been promoted to priority: ${
                 updatedTask.priority
               }`
             )

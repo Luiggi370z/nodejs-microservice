@@ -5,7 +5,7 @@ const { asValue } = require('awilix')
 const di = require('./config')
 const mediator = new EventEmitter()
 
-console.log('--- Tasks Service ✉️ ---')
+console.log('--- Tasks Service ✉️  ---')
 console.log('Connecting to tasks repository...')
 
 process.on('uncaughtException', err => {

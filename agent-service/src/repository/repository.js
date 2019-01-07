@@ -17,13 +17,12 @@ class Repository {
 
   pushAgent = async ({ agentId, skills }) => {
     try {
-      console.log('pushAgent method', agentId)
       let existingAgent = await this.agentModel.findOneAndUpdate(
         { agentId },
         { $set: { assignedAt: null, createdAt: new Date() } },
         { new: true }
       )
-      console.log('pushAgent existingAgent', existingAgent)
+
       if (existingAgent && existingAgent.agentId === agentId)
         return existingAgent
 
@@ -32,9 +31,8 @@ class Repository {
         skills,
         createdAt: new Date()
       })
-      const result = await newAgent.save()
-      console.log('pushAgent new Agent', result)
-      return result
+
+      return await newAgent.save()
     } catch (e) {
       throw e
     }
@@ -61,7 +59,6 @@ class Repository {
 
   requeueAgent = async agentId => {
     try {
-      console.log('agentId inside requeueAgent', agentId)
       return await this.agentModel.findOneAndUpdate(
         { agentId },
         { $set: { assignedAt: null, createdAt: new Date() } },
