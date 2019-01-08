@@ -135,10 +135,11 @@ export const TaskController = ({ repo, services }, app) => {
   })
   app.post('/task', (req, res, next) => {
     // TODO: Task obj validation from request
-    const { type, language, state } = req.body
+    // Optional we can do filters, or select other queues based on the type of the task
+    const { type, skills } = req.body
 
     repo
-      .pushTask({ type, language, state })
+      .pushTask({ type, payload: skills })
       .then(task => {
         try {
           publishTaskEvent(allRoutingKeys.task.new, {

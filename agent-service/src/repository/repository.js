@@ -4,7 +4,13 @@ const getSkillsProjection = skills => {
   }
 
   Object.keys(skills).forEach(
-    key => (projection = { ...projection, [`skills.${key}`]: skills[key] })
+    key =>
+      (projection = {
+        ...projection,
+        [`skills.${key}`]: !Array.isArray(skills[key])
+          ? skills[key]
+          : { $in: skills[key] }
+      })
   )
   return projection
 }
@@ -38,9 +44,9 @@ class Repository {
     }
   }
 
-  getAgentFor = async skills => {
-    let projection = getSkillsProjection(skills)
-
+  getAgentFor = async taskSkills => {
+    let projection = getSkillsProjection(taskSkills)
+    console.log('getAgentFor projection', projection)
     try {
       return await this.agentModel.findOneAndUpdate(
         projection,

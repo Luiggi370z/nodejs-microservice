@@ -22,6 +22,10 @@ const TaskSchema = new mongoose.Schema({
     type: Number,
     default: null
   },
+  type: {
+    type: String,
+    require: [true, 'Task type is required.']
+  },
   payload: {
     type: Object,
     required: [true, 'Task payload info is required.']

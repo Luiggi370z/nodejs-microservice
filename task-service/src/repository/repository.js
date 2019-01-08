@@ -1,11 +1,28 @@
+const getSkillsProjection = skills => {
+  let projection = {
+    startTime: null
+  }
+
+  Object.keys(skills).forEach(
+    key =>
+      (projection = {
+        ...projection,
+        [`payload.${key}`]: !Array.isArray(skills[key])
+          ? skills[key]
+          : { $in: skills[key] }
+      })
+  )
+  return projection
+}
+
 class Repository {
   constructor(container) {
     this.db = container.cradle.database
     this.taskModel = container.cradle.taskModel
   }
 
-  pushTask = async payload => {
-    const newTask = new this.taskModel({ createdOn: new Date(), payload })
+  pushTask = async ({ type, payload }) => {
+    const newTask = new this.taskModel({ createdOn: new Date(), type, payload })
 
     try {
       return await newTask.save()
@@ -14,10 +31,12 @@ class Repository {
     }
   }
 
-  popTask = async () => {
+  popTask = async agentSkills => {
+    let projection = getSkillsProjection(agentSkills)
+    console.log('popTask projection', projection)
     try {
       return await this.taskModel.findOneAndUpdate(
-        { startTime: null },
+        projection,
         { $set: { startTime: new Date() } },
         {
           new: true,
