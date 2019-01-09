@@ -13,11 +13,10 @@ export class Publisher {
   }
 
   start = async () => {
-    if (this.channel) throw new Error('Channel already started!')
-
-    this.connection = await amqp.connect(this.url)
-
-    this.channel = await this.connection.createChannel()
+    if (!this.channel) {
+      this.connection = await amqp.connect(this.url)
+      this.channel = await this.connection.createChannel()
+    }
 
     await this.channel.assertExchange(this.exchange, this.type, {
       durable: true

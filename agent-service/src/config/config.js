@@ -1,32 +1,26 @@
 import { allRoutingKeys } from './constants'
 
 const dbSettings = {
-  db: process.env.DB || 'agents',
+  db: process.env.DB || 'tasks',
   // user: process.env.DB_USER || 'username',
   // pass: process.env.DB_PASS || 'password',
-  repl: process.env.DB_REPLS || 'rs1',
-  servers: process.env.DB_SERVERS || 'localhost:27017',
-  dbParameters: () => ({
-    w: 'majority',
-    wtimeout: 10000,
-    j: true,
-    readPreference: 'ReadPreference.SECONDARY_PREFERRED',
-    native_parser: true
-  }),
-  serverParameters: () => ({
-    autoReconnect: true,
-    poolSize: 10
-  }),
-  replsetParameters: (replset = 'rs1') => ({
-    replicaSet: replset,
-    ha: true,
-    haInterval: 10000,
-    poolSize: 10,
-    keepAlive: 300,
-    connectTimeoutMS: 30000,
-    socketTimeoutMS: 30000
-  })
+  repl: process.env.DB_REPLS || null,
+  servers: process.env.DB_SERVERS || 'localhost:27017'
 }
+
+const dbReplicaSettings = (replicaSet = 'rs1') => ({
+  w: 'majority',
+  wtimeout: 10000,
+  j: true,
+  readPreference: 'ReadPreference.SECONDARY_PREFERRED',
+  poolSize: 10,
+  keepAlive: 300,
+  connectTimeoutMS: 30000,
+  socketTimeoutMS: 30000,
+  replicaSet,
+  ha: true,
+  haInterval: 10000
+})
 
 const serverSettings = {
   port: process.env.PORT || 3000
@@ -52,4 +46,7 @@ const aqmpSettings = {
   }
 }
 
-module.exports = Object.assign({}, { dbSettings, serverSettings, aqmpSettings })
+module.exports = Object.assign(
+  {},
+  { dbSettings, serverSettings, dbReplicaSettings, aqmpSettings }
+)

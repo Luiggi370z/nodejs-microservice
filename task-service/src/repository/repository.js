@@ -21,13 +21,12 @@ class Repository {
     this.taskModel = container.cradle.taskModel
   }
 
-  pushTask = ({ type, payload }) => {
+  pushTask = async ({ type, payload }) => {
     const newTask = new this.taskModel({ createdOn: new Date(), type, payload })
     console.log('pushTask', newTask)
+
     try {
-      newTask.save((err, obj) => {
-        console.log('after newTask save', err, obj)
-      })
+      return await newTask.save()
     } catch (e) {
       console.log('pushTask exception', e)
       throw e

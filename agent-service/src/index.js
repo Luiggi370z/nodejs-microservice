@@ -32,8 +32,18 @@ mediator.on('di.ready', container => {
       )
       app.on('close', () => {
         container.resolve('repo').disconnect()
+        container.resolve('publisherService').close()
+        container.resolve('subscriberService').close()
       })
     })
+})
+
+mediator.on('di.error', err => {
+  throw err
+})
+
+mediator.on('db.error', err => {
+  throw err
 })
 
 di.init(mediator)

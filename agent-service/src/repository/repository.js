@@ -92,10 +92,30 @@ class Repository {
 
   resetAgent = async agentId => {
     return this.agentModel.findOneAndUpdate(
-      agentId,
+      { agentId },
       { $set: { assignedAt: null, createdAt: new Date() } },
       { new: true }
     )
+  }
+
+  assignAgent = async agentId => {
+    try {
+      let assignedAgent = await this.agentModel.findOneAndUpdate(
+        { agentId },
+        {
+          $set: { assignedAt: new Date() }
+        },
+        { new: true }
+      )
+
+      // TODO: Should apply rollback rules (saga pattern + event sourcing)
+      if (!assignedAgent)
+        throw new Error(`Agent with id '${agentId}' not found`)
+
+      return assignedAgent
+    } catch (e) {
+      throw e
+    }
   }
 }
 

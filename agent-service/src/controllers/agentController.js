@@ -49,8 +49,24 @@ export const AgentController = ({ repo, services }, app) => {
 
       case allRoutingKeys.task.found:
         console.log(`\n➡️  ${colors.yellow('OnFoundTask Event received')}`)
-        console.log('\t 🙂  Task found for agent!')
-        console.log('\t ⏱  Agent will be removed from queue in 1 min')
+        console.log(
+          '\t 🙂  Task found for agent!\n',
+          JSON.stringify(data, null, 2)
+        )
+
+        repo
+          .assignAgent(data.agentId)
+          .then(assignedAgent => {
+            console.log(
+              `\t ⏱  Agent '${
+                assignedAgent.agentId
+              }' was assigned and will be removed from db in 1 min.`
+            )
+          })
+          .catch(err => {
+            console.log(`Error on assign agent ${data.agentId}`)
+            throw new Error(err)
+          })
         // Not necessary to update agent since index will remove automatically after
         // 1min
         break
@@ -82,6 +98,8 @@ export const AgentController = ({ repo, services }, app) => {
     // console.log('Meta Data', name, data, data.meta, message)
     subscriber.ack(message)
   }
+
+  services.publisher.start()
 
   services.subscriber.start(
     taskEventsHandler(services.subscriber, 'Listener Name')
@@ -165,14 +183,14 @@ export const AgentController = ({ repo, services }, app) => {
   })
 
   const publishAgentEvent = async (routingKey, message) => {
-    await services.publisher.start()
+    // await services.publisher.start()
     const isPublished = await services.publisher.publish(
       routingKey,
       JSON.stringify(message)
     )
-    if (isPublished)
-      setTimeout(async () => {
-        await services.publisher.close()
-      }, 500)
+    // if (isPublished)
+    // setTimeout(async () => {
+    //   await services.publisher.close()
+    // }, 50)
   }
 }

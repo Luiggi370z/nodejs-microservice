@@ -1,7 +1,7 @@
 const { createContainer, asValue } = require('awilix')
 
 function initDI(
-  { serverSettings, dbSettings, database, models, services },
+  { serverSettings, dbSettings, dbReplicaSettings, database, models, services },
   mediator
 ) {
   mediator.once('init', () => {
@@ -20,12 +20,12 @@ function initDI(
       mediator.emit('di.ready', container)
     })
 
-    mediator.on('db.error', err => {
+    mediator.on('db.connection.error', err => {
       mediator.emit('di.error', err)
     })
 
     database.connect(
-      dbSettings,
+      { ...dbSettings, dbReplicaSettings },
       mediator
     )
 

@@ -7,4 +7,5 @@ WORKDIR /usr/src/configs
 COPY replicaSet.js .
 COPY setup.sh .
 
-CMD ["./setup.sh"]
+ENTRYPOINT ["sh", "./setup.sh"]
+# RUN ["chmod", "+x", "./setup.sh"]

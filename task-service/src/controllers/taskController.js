@@ -104,16 +104,18 @@ export const TaskController = ({ repo, services }, app) => {
   }
 
   const publishTaskEvent = async (routingKey, message) => {
-    await services.publisher.start()
+    // await services.publisher.start()
     const isPublished = await services.publisher.publish(
       routingKey,
       JSON.stringify(message)
     )
-    if (isPublished)
-      setTimeout(async () => {
-        await services.publisher.close()
-      }, 500)
+    // if (isPublished)
+    // setTimeout(async () => {
+    //   await services.publisher.close()
+    // }, 50)
   }
+
+  services.publisher.start()
 
   services.subscriber.start(
     agentEventsHandler(services.subscriber, 'Listener Name')
