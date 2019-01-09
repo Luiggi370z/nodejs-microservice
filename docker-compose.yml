@@ -1,0 +1,51 @@
+version: '3'
+services: 
+  mongo-rs1-1:
+    image: "mongo-start"
+    build: ./mongo-replicaset/mongo-rs1-1
+    ports:
+      - "27017:27017"
+    # volumes: 
+    #   - ./mongo-replicaset/mongo-rs1-1/data:/data/db
+    depends_on: 
+      - "mongo-rs1-2"
+      - "mongo-rs1-3"
+
+  mongo-rs1-2:
+    image: "mongo"
+    command: --replSet rs1 --smallfiles --oplogSize 128
+    ports:
+      - "27018:27017"
+    # volumes: 
+    #   - ./mongo-replicaset/mongo-rs1-2/data:/data/db
+
+  mongo-rs1-3:
+    image: "mongo"
+    command: --replSet rs1 --smallfiles --oplogSize 128
+    ports:
+      - "27019:27017"
+    # volumes: 
+    #   - ./mongo-replicaset/mongo-rs1-3/data:/data/db
+
+  setup-rs:
+    image: "setup-rs"
+    build: ./mongo-replicaset/setup
+    depends_on:
+      - "mongo-rs1-1"
+  
+  task-service:
+    image: "task-image"
+    build: ./task-service
+    ports:
+      - "3001:3001"
+    depends_on:
+      - "setup-rs"
+
+  agent-service:
+    image: "agent-image"
+    build: ./agent-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - "setup-rs"
+

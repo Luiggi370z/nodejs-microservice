@@ -102,25 +102,27 @@ export const AgentController = ({ repo, services }, app) => {
         ) && next(e)
       })
   })
-  app.post('/agent', (req, res, next) => {
+  app.post('/agent', async (req, res, next) => {
     // TODO: Task obj validation from request
     const { agentId, skills } = req.body
 
-    repo
-      .pushAgent({ agentId, skills })
-      .then(async agent => {
-        try {
-          publishAgentEvent(allRoutingKeys.agent.new, { agentId, skills })
-        } catch (e) {
-          throw e
-        }
+    console.log('/agent execution')
 
-        res.status(HttpStatus.OK).json({ status: HttpStatus.OK, agent })
-        next()
-      })
-      .catch(e => {
-        res.json(Boom.internal('Error on Post Agent', req.task)) && next(e)
-      })
+    try {
+      const agent = await repo.pushAgent({ agentId, skills })
+
+      publishAgentEvent(allRoutingKeys.agent.new, { agentId, skills })
+
+      res.status(HttpStatus.OK).json({ status: HttpStatus.OK, agent })
+      next()
+    } catch (e) {
+      res.json(Boom.internal('Error on Post Agent', e)) && next(e)
+    }
+  })
+
+  app.post('/agent/ping', (req, res, next) => {
+    res.status(HttpStatus.OK).json({ status: HttpStatus.OK, message: 'pong' })
+    next()
   })
 
   app.post('/agent/for', (req, res, next) => {

@@ -192,4 +192,9 @@ export const TaskController = ({ repo, services }, app) => {
         res.json(Boom.internal('Error on Post Task', req.task)) && next(e)
       })
   })
+
+  app.post('/task/ping', (req, res, next) => {
+    res.status(HttpStatus.OK).json({ status: HttpStatus.OK, message: 'pong' })
+    next()
+  })
 }

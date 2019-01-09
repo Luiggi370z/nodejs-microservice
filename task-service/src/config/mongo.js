@@ -1,22 +1,24 @@
 const Mongoose = require('mongoose')
 
 const getMongoURL = options => {
-  return `mongodb://localhost:27017/${options.db}`
-  // const url = options.servers.reduce(   (prev, cur) => prev + cur + ',',
-  // 'mongodb://' ) return `${url.substr(0, url.length - 1)}/${options.db}`
+  return `mongodb://${options.servers}/${options.db}`
 }
 
 const connect = (options, mediator) => {
   mediator.once('boot.ready', () => {
+    Mongoose.disconnect()
+
     Mongoose.set('useCreateIndex', true)
     Mongoose.set('useFindAndModify', false)
-
+    const url = getMongoURL(options)
+    console.log('mongo db url22222', url)
     Mongoose.connect(
-      getMongoURL(options),
+      url,
       {
         useNewUrlParser: true
-        // db: options.dbParameters(), server: options.serverParameters(), replset:
-        // options.replsetParameters(options.repl)
+        // ...options.dbParameters(),
+        // ...options.serverParameters(),
+        // ...options.replsetParameters(options.repl)
       },
       err => {
         if (err) {

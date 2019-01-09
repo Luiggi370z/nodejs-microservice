@@ -1,9 +1,7 @@
 const Mongoose = require('mongoose')
 
 const getMongoURL = options => {
-  return `mongodb://localhost:27017/${options.db}`
-  // const url = options.servers.reduce(   (prev, cur) => prev + cur + ',',
-  // 'mongodb://' ) return `${url.substr(0, url.length - 1)}/${options.db}`
+  return `mongodb://${options.servers}/${options.db}`
 }
 
 const connect = (options, mediator) => {
@@ -14,9 +12,10 @@ const connect = (options, mediator) => {
     Mongoose.connect(
       getMongoURL(options),
       {
-        useNewUrlParser: true
-        // db: options.dbParameters(), server: options.serverParameters(), replset:
-        // options.replsetParameters(options.repl)
+        useNewUrlParser: true,
+        ...options.dbParameters(),
+        ...options.serverParameters(),
+        ...options.replsetParameters(options.repl)
       },
       err => {
         if (err) {
